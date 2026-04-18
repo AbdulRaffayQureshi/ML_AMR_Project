@@ -698,7 +698,7 @@ class ModelConfig:
 
 ## 📚 References
 
-> Papers identified via PubMed & Google Scholar as part of Assignment 2 (Proposal Phase).
+> Papers identified via PubMed & Google Scholar.
 
 **[1]** Y. Gao et al., *"Machine learning and feature extraction for rapid antimicrobial resistance prediction of Acinetobacter baumannii,"* **Frontiers in Microbiology**, vol. 14, 2024.
 
