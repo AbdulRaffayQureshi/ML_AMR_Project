@@ -1,0 +1,73 @@
+# ── Virtual Environment ───────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Python Cache ──────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+*.ipynb_checkpoints
+
+# ── Large Data Files (re-download from BV-BRC — see DATA_GUIDE.md) ───────────
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.fasta
+data/processed/*.csv
+data/processed/*.pkl
+
+# ── Anaconda / Conda ──────────────────────────────────────────────────────────
+anaconda_projects/
+.conda/
+
+# ── ML Model Checkpoints ──────────────────────────────────────────────────────
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+models/saved/
+
+# ── Streamlit Cache ───────────────────────────────────────────────────────────
+.streamlit/
+
+# ── OS Files ──────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── VS Code (keep settings if team uses VS Code, otherwise uncomment) ─────────
+# .vscode/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Distribution / Build ──────────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Environment Variables (never commit secrets) ──────────────────────────────
+.env
+.env.local
+*.env

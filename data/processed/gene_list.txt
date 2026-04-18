@@ -1,0 +1,13 @@
+gene
+aacC1
+aphA1
+argG
+benC
+bla
+gdhB
+hutU
+ptsP
+rpsJ
+rpsL
+sulI
+tufA
