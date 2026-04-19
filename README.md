@@ -108,7 +108,6 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ![Overview Dashboard](docs/images/Overview.jpeg)
 
-> *👆 This is the Dashboard once the app is loaded using Streamlit*
 
 ---
 
@@ -142,7 +141,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 <!-- SCREENSHOT: Live prediction page -->
 
 ![Live Prediction](docs/images/LivePredictionDemo.jpeg)
-![Random Test Results](docs/images/RandomTestResults.jpeg)
+![Random Test Results](docs/images/RandomTestResult.jpeg)
 
 ---
 
