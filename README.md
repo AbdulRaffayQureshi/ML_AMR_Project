@@ -106,7 +106,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 <!-- SCREENSHOT: Replace the line below with your actual image -->
 <!-- To add: drag your screenshot into the GitHub repo under docs/images/, then link it here -->
 
-![Overview Dashboard](docs/images/overview.png)
+![Overview Dashboard](docs/images/Overview.jpeg)
 
 > *👆 Insert your screenshot here — drag `overview.png` into `docs/images/` and it will appear automatically*
 
