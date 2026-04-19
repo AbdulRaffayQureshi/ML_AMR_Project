@@ -114,11 +114,12 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ### Evaluation Page — ROC Curves + Full Metrics Table
 
-<!-- SCREENSHOT: Paste your ROC curves screenshot here -->
+<!-- SCREENSHOT: Evaluation page screenshot -->
 
-![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg)(docs/images/PRCurves.jpeg)
+![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg) 
+![PR Curves](docs/images/PRCurves.jpeg)
+![Confusion Matrix](docs/images/ConfusionMetrice.jpeg)
 
-> *👆 Insert your ROC/Metrics screenshot here*
 >
 > **What the metrics show:**
 > - All 4 models AUC > 0.50 — the model is learning real resistance patterns from the DNA data
@@ -132,7 +133,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 <!-- SCREENSHOT: SHAP page screenshot -->
 
-![SHAP Analysis](docs/images/shap.png)
+![SHAP Analysis](docs/images/SHAP.jpeg)
 
 ---
 
@@ -140,7 +141,8 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 <!-- SCREENSHOT: Live prediction page -->
 
-![Live Prediction](docs/images/prediction.png)
+![Live Prediction](docs/images/LivePredictionDemo.jpeg)
+![Random Test Results](docs/images/RandomTestResults.jpeg)
 
 ---
 
