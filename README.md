@@ -108,7 +108,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ![Overview Dashboard](docs/images/Overview.jpeg)
 
-> *👆 Insert your screenshot here — drag `overview.png` into `docs/images/` and it will appear automatically*
+> *👆 This is the Dashboard once the app is loaded using Streamlit*
 
 ---
 
@@ -116,7 +116,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 <!-- SCREENSHOT: Paste your ROC curves screenshot here -->
 
-![ROC Curves and Metrics](docs/images/evaluation.png)
+![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg)(docs/images/PRCurves.jpeg)
 
 > *👆 Insert your ROC/Metrics screenshot here*
 >
