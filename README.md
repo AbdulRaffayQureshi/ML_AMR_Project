@@ -111,8 +111,6 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 <<<<<<< HEAD
 =======
 > *👆 Overview page showing clinical context, class distribution, and dataset metrics.*
->>>>>>> 7649eaf (Refactor project structure, update docs, fix visualization issues, and add missing init files)
-
 ---
 
 ### Evaluation Page — ROC Curves + Full Metrics Table
@@ -128,7 +126,6 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 ![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg)
 
 > *👆 Evaluation results showing ROC curves and full metrics table.*
->>>>>>> 7649eaf (Refactor project structure, update docs, fix visualization issues, and add missing init files)
 >
 > **What the metrics show:**
 > - All 4 models AUC > 0.50 — the model is learning real resistance patterns from the DNA data
@@ -154,8 +151,6 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 <<<<<<< HEAD
 ![Random Test Results](docs/images/RandomTestResult.jpeg)
 =======
->>>>>>> 7649eaf (Refactor project structure, update docs, fix visualization issues, and add missing init files)
-
 ---
 
 <details>
