@@ -108,21 +108,17 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ![Overview Dashboard](docs/images/Overview.jpeg)
 
+> *👆 Overview page showing clinical context, class distribution, and dataset metrics.*
 <<<<<<< HEAD
 =======
-> *👆 Overview page showing clinical context, class distribution, and dataset metrics.*
+
+>>>>>>> a8c55a0 (Refactor project structure and add missing init files)
 ---
 
 ### Evaluation Page — ROC Curves + Full Metrics Table
 
-<!-- SCREENSHOT: Evaluation page screenshot -->
+<!-- SCREENSHOT: Paste your ROC curves screenshot here -->
 
-<<<<<<< HEAD
-![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg) 
-![PR Curves](docs/images/PRCurves.jpeg)
-![Confusion Matrix](docs/images/ConfusionMetrice.jpeg)
-
-=======
 ![ROC Curves and Metrics](docs/images/EvaluationResult.jpeg)
 
 > *👆 Evaluation results showing ROC curves and full metrics table.*
@@ -149,8 +145,12 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ![Live Prediction](docs/images/LivePredictionDemo.jpeg)
 <<<<<<< HEAD
+<<<<<<< HEAD
 ![Random Test Results](docs/images/RandomTestResult.jpeg)
 =======
+=======
+
+>>>>>>> a8c55a0 (Refactor project structure and add missing init files)
 ---
 
 <details>
