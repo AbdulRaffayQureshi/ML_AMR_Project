@@ -132,7 +132,7 @@ def _normalise_columns(df: pd.DataFrame, label: str = "file") -> pd.DataFrame:
     if rename_map:
         print(f"    Column renames ({label}):")
         for old, new in rename_map.items():
-            print(f"      '{old}' → '{new}'")
+            print(f"      '{old}' -> '{new}'")
     return df.rename(columns=rename_map)
 
 
@@ -317,12 +317,12 @@ class DataController:
 
         print(f"        From phenotype label : {n_pheno:,}")
         print(f"        From MIC breakpoints : {n_mic:,}  "
-              f"(Meropenem CLSI: R≥{MIC_RESISTANT_GE} mg/L, S≤{MIC_SUSCEPTIBLE_LE} mg/L)")
+              f"(Meropenem CLSI: R>={MIC_RESISTANT_GE} mg/L, S<={MIC_SUSCEPTIBLE_LE} mg/L)")
         print(f"        No label possible    : {n_drop:,} (dropped)")
 
         if n_pheno + n_mic == 0:
             raise ValueError(
-                "No rows could be labelled — check that amr_phenotype.csv has either\n"
+                "No rows could be labelled -- check that amr_phenotype.csv has either\n"
                 "'Resistant Phenotype' labels or numeric 'Measurement Value' (MIC) data."
             )
 
@@ -399,7 +399,7 @@ class DataController:
         merged = amr_labels.merge(pivot, on="genome_id", how="inner")
         gene_cols = [c for c in merged.columns
                      if c not in ("genome_id","genome_name","resistance")]
-        print(f"        Before filter: {merged.shape[0]} samples × {len(gene_cols)} genes")
+        print(f"        Before filter: {merged.shape[0]} samples x {len(gene_cols)} genes")
 
         # Adaptive threshold — automatically relaxes for small datasets
         prev = merged[gene_cols].mean()
@@ -411,7 +411,7 @@ class DataController:
                 used_thr = thr
                 if thr < PrepSettings.MIN_GENE_PREVALENCE:
                     w = (f"Gene prevalence threshold relaxed "
-                         f"{PrepSettings.MIN_GENE_PREVALENCE*100:.0f}%→{thr*100:.1f}% "
+                         f"{PrepSettings.MIN_GENE_PREVALENCE*100:.0f}%->{thr*100:.1f}% "
                          f"to keep enough features.")
                     print(f"        NOTE: {w}")
                     self._warnings.append(w)
@@ -419,19 +419,19 @@ class DataController:
         if not keep_genes:
             keep_genes = gene_cols  # last resort
 
-        print(f"        After filter : {merged.shape[0]} samples × {len(keep_genes)} genes "
-              f"(≥{used_thr*100:.1f}% prevalence)")
+        print(f"        After filter : {merged.shape[0]} samples x {len(keep_genes)} genes "
+              f"(>={used_thr*100:.1f}% prevalence)")
 
         if merged.shape[0] < 10:
             raise ValueError(
-                f"Feature matrix has only {merged.shape[0]} rows — too small.\n"
+                f"Feature matrix has only {merged.shape[0]} rows -- too small.\n"
                 "Download more sp_genes data covering A. baumannii genomes."
             )
 
         self.feature_names = keep_genes
         self.df_features   = merged[["genome_id","genome_name","resistance"]+keep_genes].reset_index(drop=True)
 
-        print(f"\n  ✅ Real data ready!")
+        print(f"\n  [OK] Real data ready!")
         bal = self.class_balance
         print(f"     Samples    : {self.n_samples:,}")
         print(f"     Features   : {len(self.feature_names)} genes")
@@ -498,7 +498,7 @@ class DataController:
         self.feature_names = genes
         self.df_features = df[["genome_id","genome_name","resistance"]+genes].copy()
         self.label_stats = {"from_phenotype": n, "from_mic": 0, "dropped": 0}
-        print(f"  Synthetic: {n:,} samples × {len(genes)} features")
+        print(f"  Synthetic: {n:,} samples x {len(genes)} features")
 
     # ── Preprocessing ─────────────────────────────────────────────────────
 
@@ -508,7 +508,7 @@ class DataController:
         df = df.dropna(subset=["resistance"]).drop_duplicates("genome_id")
         df[self.feature_names] = df[self.feature_names].fillna(0).clip(0,1)
         a = len(df)
-        if b != a: print(f"  Cleaning: removed {b-a} rows → {a:,} remain")
+        if b != a: print(f"  Cleaning: removed {b-a} rows -> {a:,} remain")
         self.df_features = df.reset_index(drop=True)
 
     def _split(self):
@@ -517,7 +517,7 @@ class DataController:
         if (y==0).sum() < 2 or (y==1).sum() < 2:
             raise ValueError(
                 f"Too few samples per class: {(y==0).sum()} Susceptible, "
-                f"{(y==1).sum()} Resistant. Need ≥2 of each."
+                f"{(y==1).sum()} Resistant. Need >=2 of each."
             )
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             X, y, test_size=PrepSettings.TEST_SIZE,
@@ -527,11 +527,11 @@ class DataController:
     def _apply_smote(self):
         sm = SMOTE(random_state=PrepSettings.RANDOM_STATE)
         self.X_train_bal, self.y_train_bal = sm.fit_resample(self.X_train, self.y_train)
-        print(f"  SMOTE → {len(self.y_train_bal):,} balanced samples "
+        print(f"  SMOTE -> {len(self.y_train_bal):,} balanced samples "
               f"({(self.y_train_bal==1).sum():,}R / {(self.y_train_bal==0).sum():,}S)")
 
     def _save_processed(self):
         DataPaths.PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
         self.df_features.to_csv(DataPaths.FEATURE_MATRIX, index=False)
         pd.DataFrame({"gene": self.feature_names}).to_csv(DataPaths.GENE_LIST, index=False)
-        print(f"  Saved → {DataPaths.PROCESSED_DIR}")
+        print(f"  Saved -> {DataPaths.PROCESSED_DIR}")

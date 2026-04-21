@@ -32,12 +32,11 @@ DARK_LAYOUT = dict(
     margin        = dict(t=55, b=45, l=45, r=20),
 )
 
-MODEL_COLORS = {
-    "XGBoost"            : "#ef5350",
-    "Random Forest"      : "#26a69a",
-    "Gradient Boosting"  : "#42a5f5",
-    "Logistic Regression": "#ab47bc",
-}
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from config import ModelConfig
+MODEL_COLORS = ModelConfig.MODEL_COLORS
 
 
 # ═══════════════════════════════════════════════════════════
@@ -268,18 +267,23 @@ def plot_radar_chart(metrics_df: pd.DataFrame) -> go.Figure:
     """Spider/radar chart — multi-metric model comparison."""
     cats = ["Accuracy", "AUC-ROC", "F1-Score", "Sensitivity", "Specificity", "Precision"]
     fig  = go.Figure()
+    all_vals = []
     for name, row in metrics_df.iterrows():
         vals = [row.get(c, 0) for c in cats] + [row.get(cats[0], 0)]
+        all_vals.extend(vals)
         fig.add_trace(go.Scatterpolar(
             r=vals, theta=cats + [cats[0]],
             fill="toself", name=name,
             line_color=MODEL_COLORS.get(name, "#ffffff"), opacity=0.45,
         ))
+    # Dynamic range: floor to nearest 0.05 below min, cap at 1.0
+    min_val = min(all_vals) if all_vals else 0
+    range_low = max(0, (min_val - 0.10) // 0.05 * 0.05)
     fig.update_layout(
         **DARK_LAYOUT, height=480,
         polar=dict(
             bgcolor="#0d1b2a",
-            radialaxis=dict(visible=True, range=[0.75, 1.0], color="#546e7a"),
+            radialaxis=dict(visible=True, range=[range_low, 1.0], color="#546e7a"),
             angularaxis=dict(color="#90caf9"),
         ),
         title="Multi-Metric Model Comparison",
@@ -315,6 +319,6 @@ def plot_cv_box(cv_summary_df: pd.DataFrame) -> go.Figure:
     fig.update_layout(
         **DARK_LAYOUT, height=420,
         title="5-Fold CV AUC-ROC Distribution",
-        yaxis_title="AUC-ROC", yaxis_range=[0.80, 1.01],
+        yaxis_title="AUC-ROC",
     )
     return fig

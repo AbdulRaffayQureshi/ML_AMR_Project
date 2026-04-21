@@ -195,5 +195,5 @@ def train_all_models(
         m.fit(X_train, y_train)
         models[m.name] = m
         if verbose:
-            print("✅")
+            print("[OK]")
     return models

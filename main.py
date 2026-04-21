@@ -36,7 +36,7 @@ def run_pipeline():
     chi2_df = dc.get_chi2_ranking()
     print(f"\n  Top 5 discriminative genes:")
     for _, row in chi2_df.head(5).iterrows():
-        print(f"    {row['Gene']:20s}  χ²={row['Chi2_Score']:.2f}")
+        print(f"    {row['Gene']:20s}  Chi2={row['Chi2_Score']:.2f}")
 
     # ── 3. TRAIN ─────────────────────────────────────────────
     print("\n[PHASE 3] Model Development")
@@ -67,7 +67,7 @@ def run_pipeline():
     for gene, val in sa.mean_abs_shap.head(10).items():
         print(f"    {gene:20s}  mean|SHAP|={val:.4f}")
 
-    print("\n✅ Pipeline complete. Run 'python main.py streamlit' for the dashboard.")
+    print("\n[OK] Pipeline complete. Run 'python main.py streamlit' for the dashboard.")
     return tc.models, ec, sa, dc
 
 
@@ -91,7 +91,7 @@ def download_data():
 
     for name, url, path in downloads:
         if path.exists():
-            print(f"  ✅ Already exists: {path.name}")
+            print(f"  [OK] Already exists: {path.name}")
             continue
 
         print(f"\n  Downloading: {name}")
@@ -108,11 +108,11 @@ def download_data():
                     if total % (1024 * 1024) == 0:
                         print(f"    {total // 1024 // 1024} MB downloaded...")
 
-            print(f"  ✅ Saved: {path}  ({total / 1024:.0f} KB)")
+            print(f"  [OK] Saved: {path}  ({total / 1024:.0f} KB)")
             time.sleep(2)  # be polite to BV-BRC servers
         except requests.RequestException as e:
-            print(f"  ❌ Download failed: {e}")
-            print(f"  → Manual download instructions in DATA_GUIDE.md")
+            print(f"  [ERROR] Download failed: {e}")
+            print(f"  -> Manual download instructions in DATA_GUIDE.md")
 
 
 def launch_streamlit():

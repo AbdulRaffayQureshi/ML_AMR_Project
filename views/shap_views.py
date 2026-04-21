@@ -45,8 +45,11 @@ class SHAPAnalyser:
         n = min(max_samples or ShapConfig.MAX_SAMPLES, len(X_test))
         self._X_sample  = X_test[:n]
         self._explainer = shap.TreeExplainer(self.model.sklearn_model)
-        self._shap_vals  = self._explainer.shap_values(self._X_sample)
-        self._base_value = float(self._explainer.expected_value)
+        sv = self._explainer.shap_values(self._X_sample)
+        # Some SHAP versions return a list of arrays for multi-class
+        self._shap_vals = sv[1] if isinstance(sv, list) else sv
+        ev = self._explainer.expected_value
+        self._base_value = float(ev[1] if hasattr(ev, '__len__') else ev)
         print(f"  SHAP computed for {n} samples. Base value = {self._base_value:.4f}")
         return self
 
