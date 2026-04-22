@@ -341,7 +341,7 @@ with st.sidebar:
         <span style='color:#90caf9;'>Abdul Raffay · Andleeb · Saad</span><br>
         <div style='color:#78909c;font-size:.68rem;text-transform:uppercase;
                     letter-spacing:.5px;margin:6px 0 2px;'>Course</div>
-        <span style='color:#90caf9;'>ALC 354 · Dr. Atif Shakeel<br>COMSATS University Islamabad</span>
+        <span style='color:#90caf9;'>ALC 354 · Dr. Atif Shakeel<br>COMSATS University</span>
     </div>""", unsafe_allow_html=True)
 
 
@@ -1028,7 +1028,7 @@ elif "Literature" in PAGE:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  PAGE: LIVE PREDICTION DEMO  —  FIX 5 complete rebuild
+#  PAGE: LIVE PREDICTION DEMO
 # ═══════════════════════════════════════════════════════════════════════════════
 elif "Prediction" in PAGE:
     st.markdown("""<div class='hero'>
@@ -1036,46 +1036,114 @@ elif "Prediction" in PAGE:
         <p>Select gene profile → instant Meropenem resistance prediction with SHAP attribution</p>
     </div>""", unsafe_allow_html=True)
 
-    st.markdown("""<div class='card card-b'>
-        Toggle genes ON/OFF to define a genome profile. The XGBoost model predicts
-        Meropenem resistance probability in real-time using the same trained model.
-        <b>For educational and research use only.</b>
-    </div>""", unsafe_allow_html=True)
+    # ── Build data-driven presets from ACTUAL test set ────────────────────────
+    # This guarantees presets match the real gene names in the dataset
+    xgb_probas = tc.models["XGBoost"].predict_proba(X_te)[:, 1]
 
-    # ── Session state for presets ─────────────────────────────────────────────
-    if "pred_preset" not in st.session_state:
+    # Most resistant genome in test set (highest P(Resistant))
+    resistant_idx   = int(np.argmax(xgb_probas))
+    resistant_vec   = X_te[resistant_idx]
+
+    # Most susceptible genome in test set (lowest P(Resistant))
+    susceptible_idx = int(np.argmin(xgb_probas))
+    susceptible_vec = X_te[susceptible_idx]
+
+    # What presets mean — shown to the user
+    preset_info = {
+        "resistant": {
+            "label": "🔴 Classic CRAB Profile",
+            "desc" : "Real resistant genome from your test set with the highest "
+                     "Meropenem resistance probability. Shows which genes a "
+                     "typical carbapenem-resistant A. baumannii carries.",
+            "vec"  : resistant_vec,
+            "idx"  : resistant_idx,
+        },
+        "susceptible": {
+            "label": "🟢 Susceptible Profile",
+            "desc" : "Real susceptible genome from your test set with the lowest "
+                     "resistance probability. Shows a genome that lacks major "
+                     "resistance genes and should respond to Meropenem treatment.",
+            "vec"  : susceptible_vec,
+            "idx"  : susceptible_idx,
+        },
+    }
+
+    # ── Session state ─────────────────────────────────────────────────────────
+    if "pred_preset"    not in st.session_state:
         st.session_state["pred_preset"] = "custom"
-    if "rand_idx" not in st.session_state:
+    if "rand_idx"       not in st.session_state:
         st.session_state["rand_idx"] = int(np.random.randint(0, len(X_te)))
+    if "gene_vals_store" not in st.session_state:
+        st.session_state["gene_vals_store"] = {g: 0 for g in features}
+
+    # ── What the presets ARE — explanation shown before buttons ───────────────
+    st.markdown("<div class='sh'>⚡ Quick Presets — What They Do</div>",
+                unsafe_allow_html=True)
+    ec1, ec2, ec3 = st.columns(3)
+    ec1.markdown("""<div class='card card-r'>
+        <b>🔴 Classic CRAB Profile</b><br>
+        <span style='font-size:.82rem;color:#90caf9;'>
+        Loads the most resistant genome from your real test set.
+        Turns ON the genes that actual carbapenem-resistant
+        A. baumannii carries. Should predict <b>Resistant</b>.
+        </span></div>""", unsafe_allow_html=True)
+    ec2.markdown("""<div class='card card-g'>
+        <b>🟢 Susceptible Profile</b><br>
+        <span style='font-size:.82rem;color:#90caf9;'>
+        Loads the most susceptible genome from your real test set.
+        Turns ON only the genes a non-resistant strain carries.
+        Should predict <b>Susceptible</b>.
+        </span></div>""", unsafe_allow_html=True)
+    ec3.markdown("""<div class='card card-b'>
+        <b>🎲 Random from Test Set</b><br>
+        <span style='font-size:.82rem;color:#90caf9;'>
+        Picks a random real genome from the held-out test set.
+        Great for showing your teacher a live prediction on
+        actual BV-BRC data.
+        </span></div>""", unsafe_allow_html=True)
+
+    # ── Helper: write a gene vector into BOTH stores so checkboxes update ────
+    def _apply_vec(vec_arr: np.ndarray, preset_name: str):
+        """
+        Directly overwrites st.session_state["cb_{gene}"] — the exact key
+        Streamlit reads for each checkbox widget. Also updates gene_vals_store.
+        This is the only reliable way to force checkboxes to reflect a preset.
+        """
+        for i, g in enumerate(features):
+            val = bool(round(float(vec_arr[i])))
+            st.session_state[f"cb_{g}"]           = val   # ← checkbox widget key
+            st.session_state["gene_vals_store"][g] = int(val)
+        st.session_state["pred_preset"] = preset_name
 
     # ── Preset buttons ────────────────────────────────────────────────────────
-    st.markdown("<div class='sh'>⚡ Quick Presets</div>", unsafe_allow_html=True)
-    st.caption("Presets fill all gene toggles automatically based on typical profiles.")
-    pb1,pb2,pb3,pb4 = st.columns(4)
+    pb1, pb2, pb3, pb4 = st.columns(4)
 
     if pb1.button("🔴 Classic CRAB Profile", use_container_width=True):
-        st.session_state["pred_preset"] = "resistant"
+        _apply_vec(resistant_vec, "resistant")
+        st.rerun()
+
     if pb2.button("🟢 Susceptible Profile", use_container_width=True):
-        st.session_state["pred_preset"] = "susceptible"
+        _apply_vec(susceptible_vec, "susceptible")
+        st.rerun()
+
     if pb3.button("🎲 Random from Test Set", use_container_width=True):
-        st.session_state["rand_idx"] = int(np.random.randint(0, len(X_te)))
-        st.session_state["pred_preset"] = "random"
-    if pb4.button("🔄 Clear / Reset All", use_container_width=True):
-        st.session_state["pred_preset"] = "custom"
+        ridx = int(np.random.randint(0, len(X_te)))
+        st.session_state["rand_idx"] = ridx
+        _apply_vec(X_te[ridx], "random")
+        st.rerun()
 
-    preset      = st.session_state["pred_preset"]
-    rand_idx    = st.session_state["rand_idx"]
+    if pb4.button("🔄 Reset All to Zero", use_container_width=True):
+        _apply_vec(np.zeros(len(features)), "custom")
+        st.rerun()
 
-    # ── CRAB profile: known resistance genes for Meropenem-resistant A. baumannii
-    CRAB_ON  = {"blaOXA-23","blaOXA-51","blaNDM-1","adeB","adeC","adeR","ISAba1",
-                "intI1","armA","blaADC-30","Tn2006","sul1","tet39"}
-    SUSC_ON  = {"carO_intact","oprD_intact","blaOXA-51"}
 
-    # ── Gene toggles ──────────────────────────────────────────────────────────
+    preset = st.session_state["pred_preset"]
+
+    # ── Gene toggles — driven by session state ────────────────────────────────
     st.markdown("<div class='sh'>🧬 Gene Presence / Absence</div>", unsafe_allow_html=True)
     st.caption(
-        "Toggle each gene: ✅ = gene present in this genome (1), ❌ = absent (0). "
-        "Genes are from the actual BV-BRC specialty genes database for A. baumannii."
+        "Each checkbox = one gene. ✅ Checked = gene present in this genome (1). "
+        "Unchecked = absent (0). Presets above fill these automatically from real data."
     )
 
     gene_vals: dict = {}
@@ -1083,123 +1151,141 @@ elif "Prediction" in PAGE:
     cols_g = st.columns(n_cols)
 
     for i, g in enumerate(features):
-        # Determine default value based on preset
-        if preset == "resistant":
-            default = g in CRAB_ON
-        elif preset == "susceptible":
-            default = g in SUSC_ON
-        elif preset == "random":
-            default = bool(round(float(X_te[rand_idx, features.index(g)])))
-        else:
-            default = False   # custom — all off
-
-        # Render as checkbox (much cleaner than selectbox for binary)
-        val = cols_g[i % n_cols].checkbox(
-            f"{'✅' if default else '  '} {g}",
-            value=default,
-            key=f"gene_{g}_{preset}_{rand_idx}",
+        stored_val = st.session_state["gene_vals_store"].get(g, 0)
+        checked = cols_g[i % n_cols].checkbox(
+            g,
+            value=bool(stored_val),
+            key=f"cb_{g}",
         )
-        gene_vals[g] = int(val)
+        gene_vals[g] = int(checked)
+        # Keep session state in sync with manual edits
+        st.session_state["gene_vals_store"][g] = int(checked)
 
-    # ── Build feature vector ──────────────────────────────────────────────────
-    vec = np.array([gene_vals.get(g, 0) for g in features], dtype=float)
+    # ── Build feature vector from current checkboxes ──────────────────────────
+    vec = np.array([gene_vals[g] for g in features], dtype=float)
 
-    # Fill any features not shown with training set mean
-    feat_means = df[features].mean().values
-    for i, g in enumerate(features):
-        if g not in gene_vals:
-            vec[i] = feat_means[i]
-
-    # ── Predict button ────────────────────────────────────────────────────────
-    st.markdown("---")
-    col_btn, col_info = st.columns([1, 3])
-    predict_clicked = col_btn.button("🔮  Predict Resistance", type="primary",
-                                      use_container_width=True)
-    col_info.markdown(
-        f"<div style='padding:12px;background:#0d1b2a;border:1px solid #1e3a5f;"
-        f"border-radius:8px;font-size:.85rem;color:#90caf9;'>"
-        f"<b>{sum(gene_vals.values())}</b> genes currently marked as present out of "
-        f"<b>{len(features)}</b> total features. Preset: <b>{preset.capitalize()}</b>"
+    # ── Status bar ────────────────────────────────────────────────────────────
+    n_on = sum(gene_vals.values())
+    preset_labels = {
+        "resistant"  : "🔴 Classic CRAB",
+        "susceptible": "🟢 Susceptible",
+        "random"     : "🎲 Random genome",
+        "custom"     : "✏️ Custom (manual)",
+    }
+    st.markdown(
+        f"<div style='padding:10px 14px;background:#080f1a;border:1px solid #1e3a5f;"
+        f"border-radius:8px;font-size:.85rem;color:#90caf9;margin:8px 0;'>"
+        f"Active preset: <b style='color:#4fc3f7;'>{preset_labels[preset]}</b> &nbsp;·&nbsp; "
+        f"<b>{n_on}</b> of <b>{len(features)}</b> genes marked present"
         f"</div>",
         unsafe_allow_html=True,
     )
 
+    # ── Predict ───────────────────────────────────────────────────────────────
+    st.markdown("---")
+    predict_clicked = st.button("🔮  Run Prediction", type="primary",
+                                 use_container_width=False)
+
     if predict_clicked:
-        prob = float(tc.models["XGBoost"].predict_proba(vec.reshape(1,-1))[0][1])
+        st.session_state["last_prediction_vec"]  = vec.copy()
+        st.session_state["show_prediction"]      = True
+
+    # Show prediction results (persists until next page navigation)
+    if st.session_state.get("show_prediction", False):
+        result_vec = st.session_state.get("last_prediction_vec", vec)
+
+        prob = float(tc.models["XGBoost"].predict_proba(result_vec.reshape(1,-1))[0][1])
         pred = int(prob > 0.5)
 
         st.markdown("---")
-        r1,r2,r3,r4 = st.columns(4)
+        r1, r2, r3, r4 = st.columns(4)
         if pred == 1:
-            r1.error("🔴 **RESISTANT**")
+            r1.error("🔴 **RESISTANT to Meropenem**")
         else:
-            r1.success("🟢 **SUSCEPTIBLE**")
-        r2.metric("P(Resistant)",  f"{prob:.4f}")
+            r1.success("🟢 **SUSCEPTIBLE to Meropenem**")
+        r2.metric("P(Resistant)",   f"{prob:.4f}")
         r3.metric("P(Susceptible)", f"{1-prob:.4f}")
-        r4.metric("Confidence",    f"{max(prob,1-prob)*100:.1f}%")
+        r4.metric("Confidence",     f"{max(prob,1-prob)*100:.1f}%")
 
-        st.plotly_chart(sa.resistance_gauge(tc.models["XGBoost"], vec),
-                        use_container_width=True)
+        # Gauge
+        st.plotly_chart(
+            sa.resistance_gauge(tc.models["XGBoost"], result_vec),
+            use_container_width=True,
+        )
         chart_caption(
-            f"The model assigns {prob*100:.1f}% probability of Meropenem resistance "
-            f"to this genome profile. "
-            f"{'This exceeds' if prob>0.5 else 'This is below'} the 50% decision threshold → "
-            f"classified as {'Resistant' if pred==1 else 'Susceptible'}."
+            f"Resistance probability = {prob*100:.1f}%. "
+            f"The decision threshold is 50% — "
+            f"this genome is classified as {'Resistant' if pred==1 else 'Susceptible'}. "
+            "In a clinical setting, a higher threshold (e.g. 70%) could be used "
+            "to reduce false Resistant calls."
         )
 
-        # Live SHAP for this exact input vector
+        # Live SHAP
         import shap as shap_lib
-        live_exp  = shap_lib.TreeExplainer(tc.models["XGBoost"].sklearn_model)
-        live_sv   = live_exp.shap_values(vec.reshape(1,-1))[0]
-        base_val  = float(live_exp.expected_value)
+        live_exp = shap_lib.TreeExplainer(tc.models["XGBoost"].sklearn_model)
+        live_sv  = live_exp.shap_values(result_vec.reshape(1,-1))[0]
+        base_val = float(live_exp.expected_value)
 
-        # Top contributing genes (positive = pushes toward Resistant)
-        top_idx  = np.argsort(np.abs(live_sv))[-min(12,len(features)):]
-        top_names= [features[i] for i in top_idx]
-        top_svs  = live_sv[top_idx]
+        top_idx   = np.argsort(np.abs(live_sv))[-min(len(features), 12):]
+        top_names = [features[i] for i in top_idx]
+        top_svs   = live_sv[top_idx]
 
         fig_att = go.Figure(go.Bar(
             x=top_names, y=top_svs,
             marker=dict(
                 color=top_svs,
                 colorscale=[[0,"#26a69a"],[0.5,"#ffa726"],[1,"#ef5350"]],
-                cmin=-max(abs(top_svs)+1e-9),
-                cmax= max(abs(top_svs)+1e-9),
+                cmin=-max(abs(top_svs) + 1e-9),
+                cmax= max(abs(top_svs) + 1e-9),
             ),
         ))
         fig_att.add_hline(y=0, line_color="white", line_width=1)
         fig_att.update_layout(
             **DARK_LAYOUT, height=380,
-            title="SHAP Gene Attribution for This Prediction",
+            title="SHAP Gene Attribution — Drivers of This Prediction",
             xaxis_title="Gene", yaxis_title="SHAP Contribution",
-            xaxis={"tickangle":-38},
+            xaxis={"tickangle": -35},
         )
         st.plotly_chart(fig_att, use_container_width=True)
         chart_caption(
-            "Red bars = genes pushing this prediction toward Resistant. "
-            "Green bars = genes reducing resistance probability. "
-            f"Base value = {base_val:.3f} (average model output). "
-            "Sum of all bars + base value = final predicted probability."
+            "Red bars = this gene pushes the prediction toward Resistant. "
+            "Green bars = this gene reduces resistance probability. "
+            f"Base value = {base_val:.3f} (average across all training genomes). "
+            "Sum of all SHAP values + base value = final probability shown above."
         )
 
-        # Present genes summary
-        present_genes = [g for g in features if gene_vals.get(g,0)==1]
+        # Gene summary cards
+        present_genes  = [g for g in features if gene_vals.get(g, 0) == 1]
+        absent_genes   = [g for g in features if gene_vals.get(g, 0) == 0]
+
         if present_genes:
             st.markdown("<div class='sh'>🔬 Genes Present in This Profile</div>",
                         unsafe_allow_html=True)
-            gcols = st.columns(4)
+            gcols = st.columns(min(4, len(present_genes)))
             for j, pg in enumerate(present_genes):
-                shap_v = live_sv[features.index(pg)]
-                color  = "#ef5350" if shap_v > 0.01 else "#26a69a" if shap_v < -0.01 else "#78909c"
-                gcols[j%4].markdown(
+                shap_v = float(live_sv[features.index(pg)])
+                col_   = "#ef5350" if shap_v > 0.005 else "#26a69a" if shap_v < -0.005 else "#78909c"
+                gcols[j % 4].markdown(
                     f"<div style='background:#0d1b2a;border:1px solid #1e3a5f;"
-                    f"border-left:3px solid {color};border-radius:6px;"
-                    f"padding:5px 8px;margin:2px 0;font-size:.78rem;"
-                    f"color:{color};'>{pg}<br>"
-                    f"<span style='font-size:.68rem;color:#546e7a;'>"
+                    f"border-left:3px solid {col_};border-radius:6px;"
+                    f"padding:6px 8px;margin:3px 0;font-size:.80rem;color:{col_};'>"
+                    f"✅ {pg}<br>"
+                    f"<span style='font-size:.70rem;color:#546e7a;'>"
                     f"SHAP: {shap_v:+.3f}</span></div>",
                     unsafe_allow_html=True,
                 )
+
+        if absent_genes:
+            with st.expander(f"🔍 Absent genes ({len(absent_genes)}) — click to expand"):
+                acols = st.columns(4)
+                for j, ag in enumerate(absent_genes):
+                    shap_v = float(live_sv[features.index(ag)])
+                    acols[j % 4].markdown(
+                        f"<div style='font-size:.78rem;color:#546e7a;padding:3px 0;'>"
+                        f"❌ {ag} <span style='color:#37474f;'>({shap_v:+.3f})</span>"
+                        f"</div>",
+                        unsafe_allow_html=True,
+                    )
 
         st.warning(
             "⚠️ **Research and educational use only.** "
