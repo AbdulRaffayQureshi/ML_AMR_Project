@@ -109,11 +109,7 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 ![Overview Dashboard](docs/images/Overview.jpeg)
 
 > *👆 Overview page showing clinical context, class distribution, and dataset metrics.*
-<<<<<<< HEAD
-=======
 
->>>>>>> a8c55a0 (Refactor project structure and add missing init files)
----
 
 ### Evaluation Page — ROC Curves + Full Metrics Table
 
