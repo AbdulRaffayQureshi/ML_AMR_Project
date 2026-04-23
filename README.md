@@ -143,18 +143,6 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 
 ![Random Test Results](docs/images/RandomTestResult.jpeg)
 
-
-<details>
-<summary>📸 How to add your own screenshots to this README</summary>
-
-1. Create a `docs/images/` folder in your repo
-2. Take screenshots of your running Streamlit app (Windows: `Win + Shift + S`)
-3. Save them as `overview.png`, `evaluation.png`, `shap.png`, `prediction.png`
-4. Drag them into `docs/images/` via GitHub's web interface
-5. They'll appear automatically in the README above
-
-</details>
-
 ---
 
 ## ✨ Features
