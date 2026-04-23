@@ -140,14 +140,9 @@ This is our **Lab Terminal Project** for *Machine Learning Fundamentals (ALC 354
 <!-- SCREENSHOT: Live prediction page -->
 
 ![Live Prediction](docs/images/LivePredictionDemo.jpeg)
-<<<<<<< HEAD
-<<<<<<< HEAD
-![Random Test Results](docs/images/RandomTestResult.jpeg)
-=======
-=======
 
->>>>>>> a8c55a0 (Refactor project structure and add missing init files)
----
+![Random Test Results](docs/images/RandomTestResult.jpeg)
+
 
 <details>
 <summary>📸 How to add your own screenshots to this README</summary>
